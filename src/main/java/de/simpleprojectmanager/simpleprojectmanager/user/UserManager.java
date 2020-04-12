@@ -5,6 +5,7 @@ import de.simpleprojectmanager.simpleprojectmanager.exception.*;
 import de.simpleprojectmanager.simpleprojectmanager.util.EncryptionUtil;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
@@ -122,4 +123,35 @@ public class UserManager {
         }
     }
 
+    public Optional<User> getUserByEmail(String email) {
+
+        try {
+
+            PreparedStatement stm = SimpleProjectManager.getDbCon().prepareStatement("SELECT * FROM user WHERE email= ?");
+            stm.setString(1,email);
+            ResultSet rs = stm.executeQuery();
+
+            if(rs.next()) {
+
+                int id = rs.getInt("id");
+                String nickname = rs.getString("nickname");
+                String passhash = rs.getString("passhash");
+                String passsalt = rs.getString("passsalt");
+                email = rs.getString("email");
+                boolean emailVerified = rs.getBoolean("emailVerified");
+                String firstname = rs.getString("firstname");
+                String lastname = rs.getString("lastname");
+                String emailResetToken = rs.getString("emailResetToken");
+                String csrfToken = rs.getString("csrfToken");
+                String sessionToken = rs.getString("sessionToken");
+
+                return Optional.of(new User(id, nickname, passhash, passsalt, email, emailVerified, firstname, lastname, emailResetToken, csrfToken, sessionToken));
+
+            }
+        } catch(Exception e) {
+            return Optional.empty();
+        }
+
+        return null;
+    }
 }

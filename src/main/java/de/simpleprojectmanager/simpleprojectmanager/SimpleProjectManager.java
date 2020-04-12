@@ -52,7 +52,7 @@ public class SimpleProjectManager {
 	}
 
 	/**
-	 * Creates the default user if the
+	 * Creates the default user if the database is empty
 	 * */
 	public static void createDefaultUser(){
 			//Creates the scanner
@@ -73,7 +73,8 @@ public class SimpleProjectManager {
 			try {
 				//Tries to create the user
 				UserManager.getInstance().createUser(nickname,firstname,lastname,email,password);
-				System.out.println("Created root user.");
+				System.out.println("Created root user. Please restart application!");
+				System.exit(0);
 				return;
 			} catch (InvalidEmailException e) {
 				System.out.println("Invalid email given, please specify a valid one:");
