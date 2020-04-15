@@ -68,11 +68,11 @@ public class SimpleProjectManager {
 			String firstname = sc.nextLine();
 			System.out.println("Please specify a root-last-name (Min 2,Max 20):");
 			String lastname = sc.nextLine();
-			System.out.println("Please specify a root-email:");
+			System.out.println("Please specify a root-email (Max 40):");
 			String email = sc.nextLine();
 			System.out.println("Please specify a root-nick (Min 4,Max 20):");
 			String nickname = sc.nextLine();
-			System.out.println("Please specify a root-password (Min 8,1 special character):");
+			System.out.println("Please specify a root-password (Min 8,Max 20,1 special character):");
 			String password = sc.nextLine();
 		do{
 			try {

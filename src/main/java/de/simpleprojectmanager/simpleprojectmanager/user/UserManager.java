@@ -29,7 +29,7 @@ public class UserManager {
     private String emailRegex = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 
     //Password verifier
-    private String passwordRegex = "^(?=.*?[^\\w\\s].*?).{8,}$";
+    private String passwordRegex = "^(?=.*?[^\\w\\s].*?).{8,20}$";
 
     //First and last-name verifier
     private String nameRegex = "^\\S{2,20}$";
@@ -64,7 +64,7 @@ public class UserManager {
             throw new InvalidPasswordException();
 
         //Checks if the password is valid
-        if(!email.matches(this.emailRegex))
+        if(!email.matches(this.emailRegex) || email.length()>40)
             throw new InvalidEmailException();
 
         try{
