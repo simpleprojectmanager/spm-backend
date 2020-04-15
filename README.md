@@ -1,7 +1,7 @@
 # Simpleprojectmanager - Backend
 
 ### Fehler Handhabung
-Wenn eine Anfrage nicht erwartungsgemäß bearbeitet werden kann, zb. wenn die Email oder das Passwort beim einloggen falsch ist, wird folgender Body zurückgegeben.
+Wenn eine Anfrage nicht erwartungsgemäß bearbeitet werden kann, zb. wenn die Email oder das Passwort beim Einloggen falsch ist, wird folgender Body zurückgegeben.
 
 ```json
 {
