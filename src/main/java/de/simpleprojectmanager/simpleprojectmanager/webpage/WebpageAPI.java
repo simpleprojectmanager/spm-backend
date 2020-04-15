@@ -1,21 +1,26 @@
 package de.simpleprojectmanager.simpleprojectmanager.webpage;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.util.MimeTypeUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
+import javax.xml.crypto.dsig.spec.ExcC14NParameterSpec;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
+import java.net.URLConnection;
+import java.nio.file.Files;
 import java.util.Optional;
 
 @RestController
 public class WebpageAPI {
 
     @RequestMapping("**")
-    public ResponseEntity load(RequestEntity request){
+    public ResponseEntity<byte[]> load(RequestEntity request){
 
         //Requested path
         String path = request.getUrl().getPath();
@@ -26,20 +31,27 @@ public class WebpageAPI {
             path+="index.html";
 
         //Loads the requested file
-        Optional<String> content = this.loadResponseFile(path);
+        Optional<byte[]> content = this.loadResponseFile(path);
 
         //Checks if the content could be loaded
-        if(content.isPresent())
+        if(content.isPresent()){
+            //Creates the header
+            HttpHeaders header = new HttpHeaders();
+
+            //Tries to guess the content type
+            header.set("content-type", URLConnection.guessContentTypeFromName(path));
+
             //Exits with 200 (OK) and sends the content
-            return new ResponseEntity<String>(content.get(), HttpStatus.OK);
+            return new ResponseEntity<byte[]>(content.get(),header, HttpStatus.OK);
+        }
 
         //Tries to load the 404 page
-        Optional<String> notfoundPage = this.loadFile(new File("resources/404.html"));
+        Optional<byte[]> notfoundPage = this.loadFile(new File("resources/404.html"));
 
         //Checks if the page got found
         if(notfoundPage.isPresent())
             //Returns the 404 page
-            return new ResponseEntity<String>(notfoundPage.get(),HttpStatus.NOT_FOUND);
+            return new ResponseEntity<byte[]>(notfoundPage.get(),HttpStatus.NOT_FOUND);
 
         //Exits without a body and the page not found
         return new ResponseEntity(HttpStatus.NOT_FOUND);
@@ -52,8 +64,8 @@ public class WebpageAPI {
      * @param path the requested path
      * @return optionally the response
      */
-    public Optional<String> loadResponseFile(String path){
-        //Removes potential risk with directorys
+    public Optional<byte[]> loadResponseFile(String path){
+        //Removes potential risk with directories
         while(path.contains("../"))
             path=path.replace("../","");
 
@@ -66,19 +78,10 @@ public class WebpageAPI {
      *
      * @param requested the requested file
      */
-    public Optional<String> loadFile(File requested){
-        try(BufferedReader br = new BufferedReader(new FileReader(requested))){
-            //Content
-            String content="";
-            //Placeholder
-            String ph;
-
-            //Loads the file content
-            while((ph=br.readLine())!=null)
-                content+=ph;
-
-            //Returns the content
-            return Optional.of(content);
+    public Optional<byte[]> loadFile(File requested){
+        try{
+            //Reads the file
+            return Optional.of(Files.readAllBytes(requested.toPath()));
         }catch (Exception e){
             //Exits without the page loaded
             return Optional.empty();

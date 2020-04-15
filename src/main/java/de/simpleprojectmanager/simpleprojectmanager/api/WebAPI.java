@@ -8,15 +8,18 @@ import de.simpleprojectmanager.simpleprojectmanager.user.RequestUser;
 import de.simpleprojectmanager.simpleprojectmanager.user.User;
 import de.simpleprojectmanager.simpleprojectmanager.user.UserManager;
 import de.simpleprojectmanager.simpleprojectmanager.util.EncryptionUtil;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.boot.web.servlet.error.ErrorController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver;
 
 import java.sql.Connection;
 import java.util.Optional;
 
 @RestController
-public class WebAPI {
+public class WebAPI implements ErrorController {
 
     //establishes an active connection to the database
     private Connection con = SimpleProjectManager.getDbCon();
@@ -28,11 +31,8 @@ public class WebAPI {
      * @param user converts a given json object with attributes "email" and "password" into user object
      * @return return true if the login was successful
      */
-
-
-
     @PostMapping("api/login")
-    public IDefaultResponse login(@RequestBody RequestUser user) {
+    public ResponseEntity<IDefaultResponse> login(@RequestBody RequestUser user) {
 
         //gets the email and password value from the given user
         String email = user.getEmail();
@@ -59,12 +59,23 @@ public class WebAPI {
                     throw new Exception("Hash-failed");
 
                 if(hash.get().equals(receivedUser.getPasshash()))
-                    return new LoginResponse(receivedUser);
+                    return new ResponseEntity<IDefaultResponse>(new LoginResponse(receivedUser),HttpStatus.OK);
             }
 
         } catch(Exception e) {}
 
         //Exits with an error-response
-        return new ErrorResponse("user.login.failed");
+        return new ResponseEntity<IDefaultResponse>(new ErrorResponse("user.login.failed"),HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler({Exception.class})
+    @RequestMapping("/error")
+    public ResponseEntity<String> error(){
+        return new ResponseEntity<String>("global.invalid", HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    public String getErrorPath() {
+        return "/error";
     }
 }
