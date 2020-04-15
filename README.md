@@ -1,7 +1,7 @@
 # Simpleprojectmanager - Backend
 
 ### Fehler Handhabung
-Wenn eine Anfrage nicht erwartungsgemäß bearbeitet werden kann, zb. wenn die Email oder das Passwort beim einloggen falsch ist, wird folgender Body zurückgegeben.
+Wenn eine Anfrage nicht erwartungsgemäß bearbeitet werden kann, zb. wenn die Email oder das Passwort beim Einloggen falsch ist, wird folgender Body zurückgegeben.
 
 ```json
 {
@@ -9,7 +9,7 @@ Wenn eine Anfrage nicht erwartungsgemäß bearbeitet werden kann, zb. wenn die E
 }
 ```
 
-``Fehlercode`` steht hierbei für einen beliebigen Fehlercode welcher entweder in der ``globalen`` Sektion oder der Sektion der genutzen API aufgelistet ist.
+``Fehlercode`` steht hierbei für einen beliebigen Fehlercode, welcher entweder in der ``globalen`` Sektion oder der Sektion der genutzen API aufgelistet ist.
 
 ### Globale Fehler
 
@@ -17,7 +17,7 @@ Wenn eine Anfrage nicht erwartungsgemäß bearbeitet werden kann, zb. wenn die E
 |----------|------------|
 |``global.invalid``|Anfrage nicht ordnungsgemäß gestellt|
 
-### Benutzer erstellung
+### Erstellung eines Benutzers
 
 Bisher keine API-Methode
 
@@ -90,6 +90,6 @@ mvnw -Dmaven.test.skip package
 ```
 
 Damit werden alle Testes übersprungen und automatisch die ``jar`` in den Ordner ``target/`` abgelegt.
-Die Tests müssen übersprungen werden, da diese leider nicht richtig Funktionieren.
+Die Tests müssen übersprungen werden, da diese leider nicht richtig funktionieren.
 
-Sollte der Befehlt nicht funktionierten, installieren Sie bitte die [Maven-CLI](https://maven.apache.org/download.cgi) und nutzen Sie anstelle von ``mvnw`` den Befehl ``mvn``
+Sollte der Befehl nicht funktionieren, installieren Sie bitte die [Maven-CLI](https://maven.apache.org/download.cgi) und nutzen Sie anstelle von ``mvnw`` den Befehl ``mvn``
