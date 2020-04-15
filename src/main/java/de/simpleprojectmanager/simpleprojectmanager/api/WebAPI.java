@@ -1,5 +1,7 @@
 package de.simpleprojectmanager.simpleprojectmanager.api;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import de.simpleprojectmanager.simpleprojectmanager.SimpleProjectManager;
 import de.simpleprojectmanager.simpleprojectmanager.api.response.ErrorResponse;
 import de.simpleprojectmanager.simpleprojectmanager.api.response.IDefaultResponse;
@@ -10,12 +12,11 @@ import de.simpleprojectmanager.simpleprojectmanager.user.UserManager;
 import de.simpleprojectmanager.simpleprojectmanager.util.EncryptionUtil;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver;
 
 import java.sql.Connection;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController

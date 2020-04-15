@@ -131,27 +131,67 @@ public class UserManager {
             stm.setString(1,email);
             ResultSet rs = stm.executeQuery();
 
-            if(rs.next()) {
-
-                int id = rs.getInt("id");
-                String nickname = rs.getString("nickname");
-                String passhash = rs.getString("passhash");
-                String passsalt = rs.getString("passsalt");
-                email = rs.getString("email");
-                boolean emailVerified = rs.getBoolean("emailVerified");
-                String firstname = rs.getString("firstname");
-                String lastname = rs.getString("lastname");
-                String emailResetToken = rs.getString("emailResetToken");
-                String csrfToken = rs.getString("csrfToken");
-                String sessionToken = rs.getString("sessionToken");
-
-                return Optional.of(new User(id, nickname, passhash, passsalt, email, emailVerified, firstname, lastname, emailResetToken, csrfToken, sessionToken));
-
-            }
+            //Checks if the user got found
+            if(rs.next())
+                //Returns the formatted user
+                return this.getFormattedUser(rs);
         } catch(Exception e) {
             return Optional.empty();
         }
 
         return null;
+    }
+
+    /**
+     * Gets a user by his session token and the csrf token
+     *
+     * @param sessionToken the users session token
+     * @param csrfToken the users csrf token
+     * @return the optional user
+     */
+    public Optional<User> getUserByToken(String sessionToken,String csrfToken){
+        try{
+            //Creates the statement
+            PreparedStatement ps = SimpleProjectManager.getDbCon().prepareStatement("SELECT * FROM `user` WHERE `sessionToken`=? AND `csrfToken`=? ");
+            //Appends the values
+            ps.setString(1,sessionToken);
+            ps.setString(2,csrfToken);
+
+            //Gets the result
+            ResultSet rs = ps.executeQuery();
+
+            //Checks if the user got found
+            if(rs.next())
+                //Returns the formatted user
+                return this.getFormattedUser(rs);
+        }catch(Exception e){}
+        return Optional.empty();
+    }
+
+    /**
+     * Returns a formatted user from a given result set
+     * @param result the resultset
+     * @return the optional user
+     */
+    private Optional<User> getFormattedUser(ResultSet result){
+        try {
+            //Gets the formatted user
+            return Optional.of(new User(
+                    result.getInt("id"),
+                    result.getString("nickname"),
+                    result.getString("passhash"),
+                    result.getString("passsalt"),
+                    result.getString("email"),
+                    result.getBoolean("emailVerified"),
+                    result.getString("firstname"),
+                    result.getString("lastname"),
+                    result.getString("emailResetToken"),
+                    result.getString("csrfToken"),
+                    result.getString("sessionToken")
+            ));
+        }catch (Exception e){
+            return Optional.empty();
+        }
+
     }
 }
