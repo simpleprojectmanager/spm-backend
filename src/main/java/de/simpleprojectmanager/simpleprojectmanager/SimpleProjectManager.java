@@ -3,12 +3,17 @@ package de.simpleprojectmanager.simpleprojectmanager;
 import de.simpleprojectmanager.simpleprojectmanager.exception.*;
 import de.simpleprojectmanager.simpleprojectmanager.user.UserManager;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.stereotype.Controller;
 
 import java.sql.*;
 import java.util.Scanner;
 
+
 @SpringBootApplication
+@SpringBootConfiguration
 public class SimpleProjectManager {
 
 	//Database connection
@@ -73,7 +78,7 @@ public class SimpleProjectManager {
 			try {
 				//Tries to create the user
 				UserManager.getInstance().createUser(nickname,firstname,lastname,email,password);
-				System.out.println("Created root user. Please restart application!");
+				System.out.println("Created root user. Please restart application!\nIt is highly recommended to clear your CLI, because the default root password can be seen.");
 				System.exit(0);
 				return;
 			} catch (InvalidEmailException e) {

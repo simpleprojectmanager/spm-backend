@@ -1,6 +1,8 @@
 package de.simpleprojectmanager.simpleprojectmanager.api;
 
 import de.simpleprojectmanager.simpleprojectmanager.SimpleProjectManager;
+import de.simpleprojectmanager.simpleprojectmanager.api.response.ErrorResponse;
+import de.simpleprojectmanager.simpleprojectmanager.api.response.IDefaultResponse;
 import de.simpleprojectmanager.simpleprojectmanager.user.LoginResponse;
 import de.simpleprojectmanager.simpleprojectmanager.user.RequestUser;
 import de.simpleprojectmanager.simpleprojectmanager.user.User;
@@ -11,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.Optional;
 
 @RestController
@@ -32,7 +32,7 @@ public class WebAPI {
 
 
     @PostMapping("api/login")
-    public LoginResponse login(@RequestBody RequestUser user) {
+    public IDefaultResponse login(@RequestBody RequestUser user) {
 
         //gets the email and password value from the given user
         String email = user.getEmail();
@@ -56,15 +56,15 @@ public class WebAPI {
                 User receivedUser = receivedOptionalUser.get();
                 Optional<String> hash = EncryptionUtil.getInstance().hashSHA512(password +receivedUser.getPasssalt());
                 if(hash.isEmpty())
-                    return null;
+                    throw new Exception("Hash-failed");
 
                 if(hash.get().equals(receivedUser.getPasshash()))
                     return new LoginResponse(receivedUser);
             }
 
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+        } catch(Exception e) {}
+
+        //Exits with an error-response
+        return new ErrorResponse("user.login.failed");
     }
 }

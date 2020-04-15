@@ -1,7 +1,9 @@
 package de.simpleprojectmanager.simpleprojectmanager.user;
 
 
-public class LoginResponse {
+import de.simpleprojectmanager.simpleprojectmanager.api.response.IDefaultResponse;
+
+public class LoginResponse implements IDefaultResponse {
 
     private String nickname;
     private String firstname;

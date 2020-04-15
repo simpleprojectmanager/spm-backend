@@ -9,10 +9,11 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>de.simpleprojectmanager</groupId>
-	<artifactId>Simpleprojectmanager</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>Simpleprojectmanager</name>
-	<description>Demo project for Spring Boot</description>
+	<artifactId>SimpleProjectManager</artifactId>
+	<version>Alpha 0.0.1</version>
+	<name>SimpleProjectManager</name>
+	<packaging>jar</packaging>
+	<description>Simpleprojectmanager with webinterface</description>
 
 	<properties>
 		<java.version>11</java.version>
