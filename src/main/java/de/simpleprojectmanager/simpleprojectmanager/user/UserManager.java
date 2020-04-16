@@ -1,18 +1,25 @@
 package de.simpleprojectmanager.simpleprojectmanager.user;
 
 import de.simpleprojectmanager.simpleprojectmanager.SimpleProjectManager;
-import de.simpleprojectmanager.simpleprojectmanager.exception.*;
+import de.simpleprojectmanager.simpleprojectmanager.exception.user.create.*;
+import de.simpleprojectmanager.simpleprojectmanager.exception.user.get.UnknownUserGetException;
+import de.simpleprojectmanager.simpleprojectmanager.exception.user.get.UserGetException;
+import de.simpleprojectmanager.simpleprojectmanager.group.Group;
 import de.simpleprojectmanager.simpleprojectmanager.util.EncryptionUtil;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.LinkedList;
 import java.util.Optional;
 
 public class UserManager {
 
     //Instance
     public static UserManager instance;
+
+    //Reference to the database connection
+    private Connection connection = SimpleProjectManager.getDbCon();
 
     private UserManager() {
         instance=this;
@@ -67,25 +74,29 @@ public class UserManager {
         if(!email.matches(this.emailRegex) || email.length()>40)
             throw new InvalidEmailException();
 
-        try{
-            //Creates the email test
-            PreparedStatement emailTest = SimpleProjectManager.getDbCon().prepareStatement("SELECT * FROM `user` WHERE `email`=?");
-            //Sets the email
+        //Checks if the email is already used
+        String sql = "SELECT * FROM `user` WHERE UPPER(`email`)=UPPER(?)";
+
+        try(PreparedStatement emailTest = this.connection.prepareStatement(sql)){
             emailTest.setString(1,email);
 
             //Checks if the email is already used
             if(emailTest.executeQuery().next())
                 throw new EmailAlreadyUsedException();
+        }catch(Exception e){
+            throw new UnknowUserCreateException();
+        }
 
-            //Creates the nickname test
-            PreparedStatement nickTest = SimpleProjectManager.getDbCon().prepareStatement("SELECT * FROM `user` WHERE `nickname`=?");
-            //Sets the email
+        //Checks if the nickname is already used
+        sql = "SELECT * FROM `user` WHERE UPPER(`nickname`)=UPPER(?)";
+
+        try(PreparedStatement nickTest = this.connection.prepareStatement(sql)) {
             nickTest.setString(1,nick);
 
             //Checks if the email is already used
             if(nickTest.executeQuery().next())
-                throw new NickAlreadyUsedException();
-        }catch(SQLException e){
+                throw new EmailAlreadyUsedException();
+        }catch(Exception e) {
             throw new UnknowUserCreateException();
         }
 
@@ -105,41 +116,47 @@ public class UserManager {
         //Generates the csrf token
         String csrfToken = EncryptionUtil.getInstance().genRandomAscii(10);
 
-        try {
-            //Creates the prepared statement
-            PreparedStatement ps = SimpleProjectManager.getDbCon().prepareStatement("INSERT INTO `user` (`nickname`, `passhash`, `passsalt`, `email`, `emailVerified`, `firstname`, `lastname`, `csrfToken`, `sessionToken`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);");
+        //Inserts the new user
+        sql = "INSERT INTO `user` (`nickname`, `passhash`, `passsalt`, `email`, `emailVerified`, `firstname`, `lastname`, `csrfToken`, `sessionToken`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
+
+        try(PreparedStatement ps = this.connection.prepareStatement(sql)){
 
             //Creates the variables for the statement
             String[] var = {nick,hash.get(),salt,email,"0",firstname,lastname,csrfToken,sessionToken};
 
-            //Iterates over the variables
             for (int i = 0; i < var.length; i++)
                 ps.setString(i+1,var[i]);
 
-            //Executes the statement
-            ps.executeUpdate();
+            //Checks if the insertion was successful
+            if(ps.executeUpdate()!=1)
+                throw new UnknowUserCreateException();
         }catch(Exception e){
             throw new UnknowUserCreateException();
         }
     }
 
-    public Optional<User> getUserByEmail(String email) {
+    /**
+     * @param email the email
+     * @throws UserGetException if the response from the database failes
+     * @return an optional user by its email address
+     */
+    public Optional<User> getUserByEmail(String email) throws UserGetException{
 
-        try {
+        //Creates the query
+        String sql = "SELECT * FROM user WHERE email= ?";
 
-            PreparedStatement stm = SimpleProjectManager.getDbCon().prepareStatement("SELECT * FROM user WHERE email= ?");
+        try(PreparedStatement stm = this.connection.prepareStatement(sql)) {
             stm.setString(1,email);
             ResultSet rs = stm.executeQuery();
 
             //Checks if the user got found
             if(rs.next())
-                //Returns the formatted user
-                return this.getFormattedUser(rs);
+                return this.getUser(rs);
         } catch(Exception e) {
-            return Optional.empty();
+            throw new UnknownUserGetException();
         }
 
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -147,13 +164,14 @@ public class UserManager {
      *
      * @param sessionToken the users session token
      * @param csrfToken the users csrf token
+     * @throws UserGetException if the response form the database failes
      * @return the optional user
      */
-    public Optional<User> getUserByToken(String sessionToken,String csrfToken){
-        try{
-            //Creates the statement
-            PreparedStatement ps = SimpleProjectManager.getDbCon().prepareStatement("SELECT * FROM `user` WHERE `sessionToken`=? AND `csrfToken`=? ");
-            //Appends the values
+    public Optional<User> getUserByToken(String sessionToken,String csrfToken) throws UserGetException {
+        //Creates the query
+        String sql = "SELECT * FROM `user` WHERE `sessionToken`=? AND `csrfToken`=? ";
+
+        try(PreparedStatement ps = this.connection.prepareStatement(sql)){
             ps.setString(1,sessionToken);
             ps.setString(2,csrfToken);
 
@@ -162,18 +180,47 @@ public class UserManager {
 
             //Checks if the user got found
             if(rs.next())
-                //Returns the formatted user
-                return this.getFormattedUser(rs);
-        }catch(Exception e){}
+                return this.getUser(rs);
+        }catch(Exception e){
+            throw new UnknownUserGetException();
+        }
+
         return Optional.empty();
     }
 
     /**
-     * Returns a formatted user from a given result set
-     * @param result the resultset
+     * @return all users from the group
+     * @param group the group
+     * @throws UserGetException if the database result failes
+     */
+    public User[] getUsersFromGroup(Group group) throws UserGetException{
+        //Creates the query
+        String sql = "SELECT * FROM `user_group` JOIN `user` ON `user_group`.`userID`=`user`.`id` WHERE `user_group`.`groupID` = ?;";
+
+        try(PreparedStatement ps = this.connection.prepareStatement(sql)){
+            ps.setInt(1,group.getId());
+
+            //Gets the result
+            try(ResultSet rs = ps.executeQuery()){
+                LinkedList<User> users = new LinkedList<>();
+
+                while(rs.next())
+                    users.add(this.getUser(rs).get());
+
+                //Returns the found users as an array
+                return users.toArray(new User[users.size()]);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            throw new UnknownUserGetException();
+        }
+    }
+
+    /**
+     * @param result the result-set
      * @return the optional user
      */
-    private Optional<User> getFormattedUser(ResultSet result){
+    private Optional<User> getUser(ResultSet result){
         try {
             //Gets the formatted user
             return Optional.of(new User(
@@ -192,6 +239,5 @@ public class UserManager {
         }catch (Exception e){
             return Optional.empty();
         }
-
     }
 }

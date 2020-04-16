@@ -17,7 +17,7 @@ import java.nio.file.Files;
 import java.util.Optional;
 
 @RestController
-public class WebpageAPI {
+public class RESTWebpage {
 
     @RequestMapping("**")
     public ResponseEntity<byte[]> load(RequestEntity request){

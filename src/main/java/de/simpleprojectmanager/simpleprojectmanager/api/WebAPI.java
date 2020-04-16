@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import de.simpleprojectmanager.simpleprojectmanager.SimpleProjectManager;
 import de.simpleprojectmanager.simpleprojectmanager.api.response.ErrorResponse;
 import de.simpleprojectmanager.simpleprojectmanager.api.response.IDefaultResponse;
+import de.simpleprojectmanager.simpleprojectmanager.exception.group.create.GroupCreateException;
+import de.simpleprojectmanager.simpleprojectmanager.group.Group;
+import de.simpleprojectmanager.simpleprojectmanager.group.GroupManager;
 import de.simpleprojectmanager.simpleprojectmanager.user.LoginResponse;
 import de.simpleprojectmanager.simpleprojectmanager.user.RequestUser;
 import de.simpleprojectmanager.simpleprojectmanager.user.User;
@@ -24,7 +27,7 @@ public class WebAPI implements ErrorController {
 
     //establishes an active connection to the database
     private Connection con = SimpleProjectManager.getDbCon();
-
+    
     /**
      * Waits for a post json request to "/api/login" with attributes "email" and "password" and
      * compares the database password hash with the result of the hash from the json password and database salt.

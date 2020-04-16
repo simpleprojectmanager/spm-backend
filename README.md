@@ -17,43 +17,6 @@ Wenn eine Anfrage nicht erwartungsgemäß bearbeitet werden kann, zb. wenn die E
 |----------|------------|
 |``global.invalid``|Anfrage nicht ordnungsgemäß gestellt|
 
-### Erstellung eines Benutzers
-
-Bisher keine API-Methode
-
-|Fehlercode|Beschreibung|
-|----------|------------|
-|``user.create.invalid.password``|Invalides Passwort (min.8,1 Sonderzeichen)|
-|``user.create.invalid.email ``|Invalide Email (max.40)|
-|``user.create.invalid.firstname``|Invalider Vorname (min.2,max.20)|
-|``user.create.invalid.lastname``|Invalider Nachname (min.2,max 20)|
-|``user.create.invalid.nickname``|Invalider Nickname (min.4,max 20)|
-|``user.create.failed``|Unbekannter Fehler|
-|``user.create.used.email``|Email bereits genutzt|
-|``user.create.used.nickname``|Nickname bereits genutzt|
-
-* Passwort:
-  * Mindestlänge von 8
-  * Maximallänge von 20
-  * Mindestens ein Sonderzeichen muss vorhanden sein (Kein Whitespace).
-  * Regex zur Überprüfung im Backend: ``^(?=.*?[^\w].*?).{8,20}$``
-* Email:
-  * Maximallänge von 40
-  * Darf nicht für mehrere Nutzer verwendet werden
-  * Regex zur Überprüfung im Backend: ``^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$``
-* Vorname:
-  * Mindestlänge von 2
-  * Maximallänge von 20
-  * Regex zum Überprüfen im Backend: ``^\S{2,20}$``
-* Nachname:
-  * Mindestlänge von 2
-  * Maximallänge von 20
-  * Regex zum Überprüfen im Backend: ``^\S{2,20}$``
-* Nickname:
-  * Mindestlänge von 4
-  * Maximallänge von 40
-  * Regex zum Überprüfen im Backend: ``^\S{4,40}$``
-  
 ### Anmeldung
 
 ``POST`` Anfrage an ``api/login``

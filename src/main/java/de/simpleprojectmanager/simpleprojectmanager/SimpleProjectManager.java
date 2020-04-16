@@ -1,14 +1,11 @@
 package de.simpleprojectmanager.simpleprojectmanager;
 
-import de.simpleprojectmanager.simpleprojectmanager.exception.*;
+import de.simpleprojectmanager.simpleprojectmanager.exception.user.create.*;
 import de.simpleprojectmanager.simpleprojectmanager.user.UserManager;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.stereotype.Controller;
 
-import java.math.BigInteger;
 import java.sql.*;
 import java.util.Scanner;
 
@@ -26,8 +23,19 @@ public class SimpleProjectManager {
 			Class.forName("org.sqlite.JDBC");
 			DB_CON = DriverManager.getConnection("jdbc:sqlite:simpleprojectmanager.db");
 
-			//Creates the table
-			DB_CON.createStatement().execute("CREATE TABLE IF NOT EXISTS `user` ( `id` INTEGER NOT NULL , `nickname` TEXT NOT NULL , `passhash` TEXT NOT NULL , `passsalt` TEXT NOT NULL , `email` TEXT NOT NULL , `emailVerified` BOOLEAN NOT NULL , `firstname` TEXT NOT NULL , `lastname` TEXT NOT NULL , `emailResetToken` TEXT NULL , `csrfToken` TEXT NOT NULL , `sessionToken` TEXT NOT NULL , PRIMARY KEY (`id`));");
+			//SQL-Statements that should be executed
+			String[] execute = {
+					//User table
+					"CREATE TABLE IF NOT EXISTS `user` ( `id` INTEGER NOT NULL , `nickname` TEXT NOT NULL , `passhash` TEXT NOT NULL , `passsalt` TEXT NOT NULL , `email` TEXT NOT NULL , `emailVerified` BOOLEAN NOT NULL , `firstname` TEXT NOT NULL , `lastname` TEXT NOT NULL , `emailResetToken` TEXT NULL , `csrfToken` TEXT NOT NULL , `sessionToken` TEXT NOT NULL , PRIMARY KEY (`id`));",
+					//Group table
+					"CREATE TABLE IF NOT EXISTS `group` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL,`permissions` INTEGER NOT NULL, `color` INTEGER NOT NULL, `hierarchy` INTEGER NOT NULL, PRIMARY KEY ('id'));",
+					//Reference between user and group
+					"CREATE TABLE IF NOT EXISTS `user_group` (`userID` INTEGER NOT NULL, `groupID` INTEGER NOT NULL, PRIMARY KEY (`userID`,`groupID`));",
+			};
+
+			//Executes the instructions
+			for(String s:execute)
+				DB_CON.createStatement().execute(s);
 
 			//Checks if the root-user should be reset
 			if(args.length>0 && args[0].equalsIgnoreCase("-reset")){

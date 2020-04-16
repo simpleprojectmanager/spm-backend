@@ -1,4 +1,4 @@
-package de.simpleprojectmanager.simpleprojectmanager.exception;
+package de.simpleprojectmanager.simpleprojectmanager.exception.user.create;
 
 public class EmailAlreadyUsedException extends UserCreateException{
     public EmailAlreadyUsedException() {

@@ -64,6 +64,22 @@ public class User {
         }
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
+    }
+
+    public void setEmailResetToken(String emailResetToken) {
+        this.emailResetToken = emailResetToken;
+    }
+
+    public void setCsrfToken(String csrfToken) {
+        this.csrfToken = csrfToken;
+    }
+
     public int getId() {
         return id;
     }
